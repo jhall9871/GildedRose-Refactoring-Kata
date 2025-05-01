@@ -1,54 +1,30 @@
 class GildedRose
 
+  LEGENDARY_ITEMS = ["Sulfuras, Hand of Ragnaros"]
+  BETTER_WITH_AGE_ITEMS = ["Aged Brie"]
+  WAY_BETTER_WITH_AGE_ITEMS = ["Backstage passes to a TAFKAL80ETC concert"]
+  CONJURED_ITEMS = ["Conjured Mana Cake"]
+  QUALITY_LIMIT = 50
+
   def initialize(items)
     @items = items
   end
 
   def update_quality()
     @items.each do |item|
-      if item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert"
-        if item.quality > 0
-          if item.name != "Sulfuras, Hand of Ragnaros"
-            item.quality = item.quality - 1
-          end
-        end
-      else
-        if item.quality < 50
-          item.quality = item.quality + 1
-          if item.name == "Backstage passes to a TAFKAL80ETC concert"
-            if item.sell_in < 11
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-            if item.sell_in < 6
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-          end
-        end
-      end
-      if item.name != "Sulfuras, Hand of Ragnaros"
-        item.sell_in = item.sell_in - 1
-      end
-      if item.sell_in < 0
-        if item.name != "Aged Brie"
-          if item.name != "Backstage passes to a TAFKAL80ETC concert"
-            if item.quality > 0
-              if item.name != "Sulfuras, Hand of Ragnaros"
-                item.quality = item.quality - 1
-              end
-            end
-          else
-            item.quality = item.quality - item.quality
-          end
-        else
-          if item.quality < 50
-            item.quality = item.quality + 1
-          end
-        end
-      end
+      return if LEGENDARY_ITEMS.include? item.name
+
+      quality_change = 0
+      quality_change += 1 if BETTER_WITH_AGE_ITEMS.include? item.name
+      quality_change += 2 if WAY_BETTER_WITH_AGE_ITEMS.include? item.name
+      quality_change += 1 if item.sell_in < 11 && WAY_BETTER_WITH_AGE_ITEMS.include?(item.name)
+      quality_change += 1 if item.sell_in < 6 && WAY_BETTER_WITH_AGE_ITEMS.include?(item.name)
+      quality_change -= 2 if CONJURED_ITEMS.include? item.name
+
+      new_quality = item.quality + quality_change
+      new_quality = 0 if new_quality < 0
+      new_quality = QUALITY_LIMIT if new_quality > QUALITY_LIMIT
+      item.quality = new_quality
     end
   end
 end
